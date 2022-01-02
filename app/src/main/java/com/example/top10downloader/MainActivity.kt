@@ -1,13 +1,9 @@
 package com.example.top10downloader
 
 import android.os.AsyncTask
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import java.io.IOException
-import java.lang.Exception
-import java.net.HttpURLConnection
-import java.net.MalformedURLException
+import androidx.appcompat.app.AppCompatActivity
 import java.net.URL
 
 class MainActivity : AppCompatActivity() {
