@@ -65,6 +65,14 @@ class MainActivity : AppCompatActivity() {
                 charsRead = reader.read(inputBuffer)
                 if (charsRead > 0){
                     xmlResult.append(String(inputBuffer, 0 , charsRead))
+                } catch (e: MalformedURLException) {
+                    Log.e(TAG, "downloadURL: Invalid URL ${e.message}")
+                } catch (e: IOException) {
+                    Log.e(TAG, "downloadURL: IO Exception reading data ${e.message}")
+                } catch (e: SecurityException) {
+                    Log.e(TAG, "downloadURL: Security Exception. Need permissions? ${e.message}")
+                } catch (e: Exception) {
+                    Log.e(TAG, "Unknown Error: ${e.message}")
                 }
             }
 
