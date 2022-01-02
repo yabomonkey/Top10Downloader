@@ -70,14 +70,24 @@ class MainActivity : AppCompatActivity() {
                     Log.d(TAG, "Received ${xmlResult.length} bytes")
                     return xmlResult.toString()
 
-                } catch (e: MalformedURLException) {
-                    Log.e(TAG, "downloadURL: Invalid URL ${e.message}")
-                } catch (e: IOException) {
-                    Log.e(TAG, "downloadURL: IO Exception reading data ${e.message}")
-                } catch (e: SecurityException) {
-                    Log.e(TAG, "downloadURL: Security Exception. Need permissions? ${e.message}")
+//                } catch (e: MalformedURLException) {
+//                    Log.e(TAG, "downloadURL: Invalid URL ${e.message}")
+//                } catch (e: IOException) {
+//                    Log.e(TAG, "downloadURL: IO Exception reading data ${e.message}")
+//                } catch (e: SecurityException) {
+//                    Log.e(TAG, "downloadURL: Security Exception. Need permissions? ${e.message}")
+//                } catch (e: Exception) {
+//                    Log.e(TAG, "Unknown Error: ${e.message}")
+//                }
                 } catch (e: Exception) {
-                    Log.e(TAG, "Unknown Error: ${e.message}")
+                    val errorMessage: String = when(e) {
+                        is MalformedURLException -> "downloadURL: Invalid URL ${e.message}"
+                        is IOException -> "downloadURL: IO Exception reading data ${e.message}"
+                        is SecurityException -> {e.printStackTrace()
+                            "downloadURL: Security Exception. Need permissions? ${e.message}"
+                        }
+                        else -> "Unknown Error: ${e.message}"
+                    }
                 }
                 return ""
             }
