@@ -12,6 +12,7 @@ class ParseApplications {
         Log.d(TAG, "parse called with $xmlData")
         var status = true
         var inEntry = false
+        var gotImage = false
         var textValue = ""
 
         try {
@@ -22,12 +23,17 @@ class ParseApplications {
             var eventType = xpp.eventType
             var currentRecord = FeedEntry()
             while (eventType != XmlPullParser.END_DOCUMENT) {
-                val tagName = xpp.name.lowercase() // TODO: we should use the safe-call operator ?
+                val tagName = xpp.name?.lowercase()
                 when (eventType){
                     XmlPullParser.START_TAG -> {
                         Log.d(TAG, "parse: Starting tag for " + tagName)
                         if (tagName == "entry"){
                             inEntry = true
+                        } else if ((tagName == "image") && inEntry) {
+                            val imageResolution = xpp.getAttributeValue(null, "height")
+                            if (imageResolution.isNotEmpty()){
+                                gotImage = imageResolution == "53"
+                            }
                         }
                     }
 
@@ -45,14 +51,21 @@ class ParseApplications {
 
                                 "name" -> currentRecord.name = textValue
                                 "artist" -> currentRecord.artist = textValue
-                                "releaseDate" -> currentRecord.releaseDate = textValue
+                                "releasedate" -> currentRecord.releaseDate = textValue
                                 "summary" -> currentRecord.summary = textValue
-                                "image" -> currentRecord.imageURL = textValue
+                                "image" -> if(gotImage) currentRecord.imageURL = textValue
                             }
                         }
                     }
 
                 }
+
+                eventType = xpp.next()
+            }
+
+            for(app in applications) {
+                Log.d(TAG, "*************")
+                Log.d(TAG, app.toString())
             }
 
         } catch (e: Exception) {
