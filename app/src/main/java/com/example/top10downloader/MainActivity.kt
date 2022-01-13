@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity() {
         xmlListView = findViewById(R.id.xmlListView)
 
         Log.d(TAG, "onCreate called")
-        downloadData.execute("http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topfreeapplications/limit=10/xml")
+        downloadData.execute("http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topfreeapplications/limit=200/xml")
         Log.d(TAG, "onCreate Done")
     }
 
