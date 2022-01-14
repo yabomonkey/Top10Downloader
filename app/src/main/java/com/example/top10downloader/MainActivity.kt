@@ -96,6 +96,25 @@ class MainActivity : AppCompatActivity() {
         downloadData?.cancel(true)
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if(feedUrl != null && feedLimit != null){
+            outState.putString("FeedUrl", feedUrl)
+            outState.putInt("FeedLimit", feedLimit)
+            outState.putBoolean("URL_STORED", true)
+        }
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        if(savedInstanceState.getBoolean("URL_STORED", false)){
+            feedUrl = savedInstanceState.getString("FeedUrl").toString()
+            feedLimit = savedInstanceState.getInt("FeedLimit")
+        }
+        downloadUrl(feedUrl.format(feedLimit))
+        Log.d(TAG, "onRestoreInstanceState called, with ${savedInstanceState.getString("FeedUrl").toString()} and ${savedInstanceState.getInt("FeedLimit")}")
+    }
+
     companion object {
         private class DownloadData(context: Context, listView: ListView) : AsyncTask<String, Void, String>() {
             private val TAG = "DownloadData"
