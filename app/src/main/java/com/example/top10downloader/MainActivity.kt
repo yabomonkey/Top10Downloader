@@ -35,6 +35,11 @@ class MainActivity : AppCompatActivity() {
     private var feedUrl: String = "http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topfreeapplications/limit=%d/xml"
     private var feedLimit = 10
 
+    private var feedCachedURL = "INVALIDATED"
+    private val STATE_URL = "FeedUrl"
+    private val STATE_LIMIT = "FeedLimit"
+    private val STATE_SAVED = "saved"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -46,10 +51,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun downloadUrl(feedUrl: String){
-        Log.d(TAG, "downloadUrl starting AsyncTask")
-        downloadData = DownloadData(this, xmlListView)
-        downloadData?.execute(feedUrl)
-        Log.d(TAG, "downloadUrl Done")
+        if(feedUrl != feedCachedURL) {
+            Log.d(TAG, "downloadUrl starting AsyncTask")
+            downloadData = DownloadData(this, xmlListView)
+            downloadData?.execute(feedUrl)
+            feedCachedURL = feedUrl
+            Log.d(TAG, "downloadUrl Done")
+        } else {
+            Log.d(TAG, "downloadURL - URL not changed")
+        }
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -82,6 +93,7 @@ class MainActivity : AppCompatActivity() {
                     Log.d(TAG, "onOptionsItemSelected ${item.title} setting feedLimit unchanged")
                 }
             }
+            R.id.mnuRefresh -> feedCachedURL = "INVALIDATED"
             else ->
                 return super.onOptionsItemSelected(item)
 
@@ -99,20 +111,20 @@ class MainActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         if(feedUrl != null && feedLimit != null){
-            outState.putString("FeedUrl", feedUrl)
-            outState.putInt("FeedLimit", feedLimit)
-            outState.putBoolean("URL_STORED", true)
+            outState.putString(STATE_URL, feedUrl)
+            outState.putInt(STATE_LIMIT, feedLimit)
+            outState.putBoolean(STATE_SAVED, true)
         }
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
-        if(savedInstanceState.getBoolean("URL_STORED", false)){
-            feedUrl = savedInstanceState.getString("FeedUrl").toString()
-            feedLimit = savedInstanceState.getInt("FeedLimit")
+        if(savedInstanceState.getBoolean(STATE_SAVED, false)){
+            feedUrl = savedInstanceState.getString(STATE_URL).toString()
+            feedLimit = savedInstanceState.getInt(STATE_LIMIT)
         }
         downloadUrl(feedUrl.format(feedLimit))
-        Log.d(TAG, "onRestoreInstanceState called, with ${savedInstanceState.getString("FeedUrl").toString()} and ${savedInstanceState.getInt("FeedLimit")}")
+
     }
 
     companion object {
@@ -142,12 +154,15 @@ class MainActivity : AppCompatActivity() {
                 if (rssFeed.isEmpty()) {
                     Log.e(TAG, "doInBackground: error downloading")
                 }
+
                 return rssFeed
             }
 
             private fun downloadXML(urlPath: String?): String {
                 return URL(urlPath).readText()
             }
+
+
 
         }
     }
