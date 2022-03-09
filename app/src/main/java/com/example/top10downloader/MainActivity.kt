@@ -35,6 +35,13 @@ class MainActivity : AppCompatActivity() {
 
         xmlListView = findViewById(R.id.xmlListView)
 
+        val feedAdapter = FeedAdapter(this, R.layout.list_record, EMPTY_FEED_LIST)
+        xmlListView.adapter = feedAdapter
+
+        val feedViewModel: FeedViewModel by viewModels()
+        feedViewModel.feedEntries.observe(this,
+            Observer<List<FeedEntry>> { feedEntries -> feedAdapter.setFeedList(feedEntries ?: EMPTY_FEED_LIST) })
+
         downloadUrl(feedUrl.format(feedLimit))
         Log.d(TAG, "onCreate done")
     }
