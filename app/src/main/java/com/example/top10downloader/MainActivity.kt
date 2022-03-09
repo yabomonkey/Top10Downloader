@@ -17,15 +17,6 @@ class FeedEntry {
     var releaseDate: String = ""
     var summary: String = ""
     var imageURL: String = ""
-
-    override fun toString(): String {
-        return """
-            name = $name
-            artist = $artist
-            releaseDate = $releaseDate
-            summary = $summary
-        """.trimIndent()
-    }
 }
 
 class MainActivity : AppCompatActivity() {
