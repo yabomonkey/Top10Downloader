@@ -8,8 +8,7 @@ import java.net.URL
 
 private const val TAG = "DownloadData"
 
-class DownloadData {
-    class DownloadData(private val callBack: DownloaderCallBack) : AsyncTask<String, Void, String>() {
+class DownloadData(private val callBack: DownloaderCallBack) : AsyncTask<String, Void, String>() {
 
         interface DownloaderCallBack {
             fun onDataAvailable(data: List<FeedEntry>)
