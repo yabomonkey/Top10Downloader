@@ -127,45 +127,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    companion object {
-        private class DownloadData(context: Context, listView: ListView) : AsyncTask<String, Void, String>() {
-            private val TAG = "DownloadData"
 
-            var propContext : Context by Delegates.notNull()
-            var propListView : ListView by Delegates.notNull()
-
-            init {
-                propContext = context
-                propListView = listView
-            }
-
-            override fun onPostExecute(result: String) {
-                super.onPostExecute(result)
-                val parseApplications = ParseApplications()
-                parseApplications.parse(result)
-                val feedAdapter = FeedAdapter(propContext, R.layout.list_record, parseApplications.applications)
-                propListView.adapter = feedAdapter
-
-            }
-
-            override fun doInBackground(vararg url: String?): String {
-                Log.d(TAG, "doInBackground: starts with ${url[0]}")
-                val rssFeed = downloadXML(url[0])
-                if (rssFeed.isEmpty()) {
-                    Log.e(TAG, "doInBackground: error downloading")
-                }
-
-                return rssFeed
-            }
-
-            private fun downloadXML(urlPath: String?): String {
-                return URL(urlPath).readText()
-            }
-
-
-
-        }
-    }
 }
 
 
