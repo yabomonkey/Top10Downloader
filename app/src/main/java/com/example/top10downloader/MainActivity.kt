@@ -19,17 +19,17 @@ class FeedEntry {
     var imageURL: String = ""
 }
 
+private const val TAG = "MainActivity"
+private const val STATE_URL = "FeedUrl"
+private const val STATE_LIMIT = "FeedLimit"
+private const val STATE_SAVED = "saved"
+
 class MainActivity : AppCompatActivity() {
     private val TAG = "MainActivity"
     private lateinit var xmlListView: ListView
-    private var downloadData: DownloadData? = null
+
     private var feedUrl: String = "http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topfreeapplications/limit=%d/xml"
     private var feedLimit = 10
-
-    private var feedCachedURL = "INVALIDATED"
-    private val STATE_URL = "FeedUrl"
-    private val STATE_LIMIT = "FeedLimit"
-    private val STATE_SAVED = "saved"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
