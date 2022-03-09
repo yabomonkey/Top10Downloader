@@ -25,7 +25,7 @@ private const val STATE_LIMIT = "FeedLimit"
 private const val STATE_SAVED = "saved"
 
 class MainActivity : AppCompatActivity() {
-    private val TAG = "MainActivity"
+
     private lateinit var xmlListView: ListView
 
     private var feedUrl: String = "http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topfreeapplications/limit=%d/xml"
@@ -41,18 +41,7 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "onCreate done")
     }
 
-    private fun downloadUrl(feedUrl: String){
-        if(feedUrl != feedCachedURL) {
-            Log.d(TAG, "downloadUrl starting AsyncTask")
-            downloadData = DownloadData(this, xmlListView)
-            downloadData?.execute(feedUrl)
-            feedCachedURL = feedUrl
-            Log.d(TAG, "downloadUrl Done")
-        } else {
-            Log.d(TAG, "downloadURL - URL not changed")
-        }
 
-    }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.feeds_menu, menu)
@@ -89,14 +78,8 @@ class MainActivity : AppCompatActivity() {
                 return super.onOptionsItemSelected(item)
 
         }
-
         downloadUrl(feedUrl.format(feedLimit))
         return true
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        downloadData?.cancel(true)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
