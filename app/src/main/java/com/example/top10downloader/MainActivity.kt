@@ -33,6 +33,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        if (savedInstanceState != null) {
+            feedUrl = savedInstanceState.getString(STATE_URL).toString()
+            feedLimit = savedInstanceState.getInt(STATE_LIMIT)
+        }
+
         xmlListView = findViewById(R.id.xmlListView)
 
         val feedAdapter = FeedAdapter(this, R.layout.list_record, EMPTY_FEED_LIST)
