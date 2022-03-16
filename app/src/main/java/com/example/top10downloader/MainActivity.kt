@@ -28,8 +28,10 @@ class MainActivity : AppCompatActivity() {
 
     private var feedUrl: String = "http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topfreeapplications/limit=%d/xml"
     private var feedLimit = 10
+    private val feedViewModel: FeedViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d(TAG, "onCreate Starts")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
@@ -43,11 +45,11 @@ class MainActivity : AppCompatActivity() {
         val feedAdapter = FeedAdapter(this, R.layout.list_record, EMPTY_FEED_LIST)
         xmlListView.adapter = feedAdapter
 
-        val feedViewModel: FeedViewModel by viewModels()
+
         feedViewModel.feedEntries.observe(this,
             Observer<List<FeedEntry>> { feedEntries -> feedAdapter.setFeedList(feedEntries ?: EMPTY_FEED_LIST) })
 
-        downloadUrl(feedUrl.format(feedLimit))
+        feedViewModel.downloadUrl(feedUrl.format(feedLimit))
         Log.d(TAG, "onCreate done")
     }
 
@@ -83,12 +85,12 @@ class MainActivity : AppCompatActivity() {
                     Log.d(TAG, "onOptionsItemSelected ${item.title} setting feedLimit unchanged")
                 }
             }
-            R.id.mnuRefresh -> feedCachedURL = "INVALIDATED"
+            R.id.mnuRefresh -> feedViewModel.invalidate()
             else ->
                 return super.onOptionsItemSelected(item)
 
         }
-        downloadUrl(feedUrl.format(feedLimit))
+        feedViewModel.downloadUrl(feedUrl.format(feedLimit))
         return true
     }
 
