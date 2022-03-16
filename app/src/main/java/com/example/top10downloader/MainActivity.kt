@@ -1,15 +1,13 @@
 package com.example.top10downloader
 
-import android.content.Context
-import android.os.AsyncTask
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ListView
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import java.net.URL
-import kotlin.properties.Delegates
+import androidx.lifecycle.Observer
 
 class FeedEntry {
     var name: String = ""
@@ -17,51 +15,45 @@ class FeedEntry {
     var releaseDate: String = ""
     var summary: String = ""
     var imageURL: String = ""
-
-    override fun toString(): String {
-        return """
-            name = $name
-            artist = $artist
-            releaseDate = $releaseDate
-            summary = $summary
-        """.trimIndent()
-    }
 }
 
+private const val TAG = "MainActivity"
+private const val STATE_URL = "FeedUrl"
+private const val STATE_LIMIT = "FeedLimit"
+private const val STATE_SAVED = "saved"
+
 class MainActivity : AppCompatActivity() {
-    private val TAG = "MainActivity"
+
     private lateinit var xmlListView: ListView
-    private var downloadData: DownloadData? = null
+
     private var feedUrl: String = "http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topfreeapplications/limit=%d/xml"
     private var feedLimit = 10
-
-    private var feedCachedURL = "INVALIDATED"
-    private val STATE_URL = "FeedUrl"
-    private val STATE_LIMIT = "FeedLimit"
-    private val STATE_SAVED = "saved"
+    private val feedViewModel: FeedViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d(TAG, "onCreate Starts")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        if (savedInstanceState != null) {
+            feedUrl = savedInstanceState.getString(STATE_URL).toString()
+            feedLimit = savedInstanceState.getInt(STATE_LIMIT)
+        }
+
         xmlListView = findViewById(R.id.xmlListView)
 
-        downloadUrl(feedUrl.format(feedLimit))
+        val feedAdapter = FeedAdapter(this, R.layout.list_record, EMPTY_FEED_LIST)
+        xmlListView.adapter = feedAdapter
+
+
+        feedViewModel.feedEntries.observe(this,
+            Observer<List<FeedEntry>> { feedEntries -> feedAdapter.setFeedList(feedEntries ?: EMPTY_FEED_LIST) })
+
+        feedViewModel.downloadUrl(feedUrl.format(feedLimit))
         Log.d(TAG, "onCreate done")
     }
 
-    private fun downloadUrl(feedUrl: String){
-        if(feedUrl != feedCachedURL) {
-            Log.d(TAG, "downloadUrl starting AsyncTask")
-            downloadData = DownloadData(this, xmlListView)
-            downloadData?.execute(feedUrl)
-            feedCachedURL = feedUrl
-            Log.d(TAG, "downloadUrl Done")
-        } else {
-            Log.d(TAG, "downloadURL - URL not changed")
-        }
 
-    }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.feeds_menu, menu)
@@ -93,19 +85,13 @@ class MainActivity : AppCompatActivity() {
                     Log.d(TAG, "onOptionsItemSelected ${item.title} setting feedLimit unchanged")
                 }
             }
-            R.id.mnuRefresh -> feedCachedURL = "INVALIDATED"
+            R.id.mnuRefresh -> feedViewModel.invalidate()
             else ->
                 return super.onOptionsItemSelected(item)
 
         }
-
-        downloadUrl(feedUrl.format(feedLimit))
+        feedViewModel.downloadUrl(feedUrl.format(feedLimit))
         return true
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        downloadData?.cancel(true)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -114,56 +100,6 @@ class MainActivity : AppCompatActivity() {
             outState.putString(STATE_URL, feedUrl)
             outState.putInt(STATE_LIMIT, feedLimit)
             outState.putBoolean(STATE_SAVED, true)
-        }
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        if(savedInstanceState.getBoolean(STATE_SAVED, false)){
-            feedUrl = savedInstanceState.getString(STATE_URL).toString()
-            feedLimit = savedInstanceState.getInt(STATE_LIMIT)
-        }
-        downloadUrl(feedUrl.format(feedLimit))
-
-    }
-
-    companion object {
-        private class DownloadData(context: Context, listView: ListView) : AsyncTask<String, Void, String>() {
-            private val TAG = "DownloadData"
-
-            var propContext : Context by Delegates.notNull()
-            var propListView : ListView by Delegates.notNull()
-
-            init {
-                propContext = context
-                propListView = listView
-            }
-
-            override fun onPostExecute(result: String) {
-                super.onPostExecute(result)
-                val parseApplications = ParseApplications()
-                parseApplications.parse(result)
-                val feedAdapter = FeedAdapter(propContext, R.layout.list_record, parseApplications.applications)
-                propListView.adapter = feedAdapter
-
-            }
-
-            override fun doInBackground(vararg url: String?): String {
-                Log.d(TAG, "doInBackground: starts with ${url[0]}")
-                val rssFeed = downloadXML(url[0])
-                if (rssFeed.isEmpty()) {
-                    Log.e(TAG, "doInBackground: error downloading")
-                }
-
-                return rssFeed
-            }
-
-            private fun downloadXML(urlPath: String?): String {
-                return URL(urlPath).readText()
-            }
-
-
-
         }
     }
 }
