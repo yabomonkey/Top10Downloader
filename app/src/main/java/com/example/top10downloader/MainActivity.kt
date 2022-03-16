@@ -100,18 +100,6 @@ class MainActivity : AppCompatActivity() {
             outState.putBoolean(STATE_SAVED, true)
         }
     }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        if(savedInstanceState.getBoolean(STATE_SAVED, false)){
-            feedUrl = savedInstanceState.getString(STATE_URL).toString()
-            feedLimit = savedInstanceState.getInt(STATE_LIMIT)
-        }
-        downloadUrl(feedUrl.format(feedLimit))
-
-    }
-
-
 }
 
 
